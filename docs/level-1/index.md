@@ -11,30 +11,30 @@ As required by the Stratum pedagogical framework, here are the parameters for th
 - **Domain:** How software systems are conceived, modelled, and documented
 - **Prerequisite:** None (Review `BEFORE_YOU_BEGIN.md`)
 - **Deliverable:** A fully documented architecture for a small, familiar system
-- **Thinking shift:** From *"I will start coding"* to *"I will first design"*
+- **Thinking shift:** From _"I will start coding"_ to _"I will first design"_
 
 ---
 
 ## Course Progression
 
-In this level, we will use a simple, familiar example—a Public Library Management System—to ground our architectural concepts before we introduce the actual Stratum framework. 
+In this level, we will use a simple, familiar example—a Public Library Management System—to ground our architectural concepts before we introduce the actual Stratum framework.
 
-Below is the roadmap for Level 1. 
+Below is the roadmap for Level 1.
 
 :::{note}
-Use the "Next" button at the bottom of each page to progress through the lessons sequentially. 
+Use the "Next" button at the bottom of each page to progress through the lessons sequentially.
 :::
 
 ```{toctree}
 :maxdepth: 1
 :caption: Level 1 Lessons
 
-    level-1/L01.md
-    level-1/L02.md
-    level-1/L03.md
-    level-1/L04.md
-    level-1/L05.md
-    level-1/L06.md
-    level-1/L07.md
-    level-1/L08.md
+L01
+L02
+L03
+L04
+L05
+L06
+L07
+L08
 ```
