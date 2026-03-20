@@ -733,7 +733,7 @@ While the SDLC is often taught as a linear “waterfall,” modern teams iterate
     </pre><p>Here, the <code class="docutils literal notranslate"><span class="pre">Task</span></code> is just data. The storage logic lives in <code class="docutils literal notranslate"><span class="pre">TaskRepository</span></code>, the UI logic in <code class="docutils literal notranslate"><span class="pre">TaskFormatter</span></code>, and the notification logic in <code class="docutils literal notranslate"><span class="pre">NotificationService</span></code>. If the database changes, only <code class="docutils literal notranslate"><span class="pre">TaskRepository</span></code> needs to change — the formatter and notifier are completely insulated from that decision.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Architecture is ultimately a communication tool. A well-designed system like the one in <a class="reference internal" href="#the-system-that-was-designed-separated-concerns"><span class="xref myst">§4.2</span></a> communicates its intent clearly to the next developer who reads it.</p>
+<p>Architecture is ultimately a communication tool. A well-designed system like the one in <a class="reference internal" href="#42-the-system-that-was-designed-separated-concerns"><span class="xref myst">§4.2</span></a> communicates its intent clearly to the next developer who reads it.</p>
 </div>
 </section>
 </section>
@@ -788,7 +788,7 @@ While the SDLC is often taught as a linear “waterfall,” modern teams iterate
 <section id="application-reflection">
 <h3>Application / Reflection<a class="headerlink" href="#application-reflection" title="Link to this heading"></a></h3>
 <ol class="arabic simple" start="3">
-<li><p>Look at the “God class” diagram in <a class="reference internal" href="#the-system-that-grew-the-god-class"><span class="xref myst">§4.1</span></a>. If the team decides to switch from sending overdue email notifications to sending SMS messages, why does the <code class="docutils literal notranslate"><span class="pre">Task</span></code> class need to be modified? Why is this architecturally problematic? <code class="docutils literal notranslate"><span class="pre">[BT3</span> <span class="pre">—</span> <span class="pre">Apply]</span></code></p></li>
+<li><p>Look at the “God class” diagram in <a class="reference internal" href="#41-the-system-that-grew-the-god-class"><span class="xref myst">§4.1</span></a>. If the team decides to switch from sending overdue email notifications to sending SMS messages, why does the <code class="docutils literal notranslate"><span class="pre">Task</span></code> class need to be modified? Why is this architecturally problematic? <code class="docutils literal notranslate"><span class="pre">[BT3</span> <span class="pre">—</span> <span class="pre">Apply]</span></code></p></li>
 </ol>
 <details>
 <summary>📋 Memorandum — check your answers here</summary>
@@ -797,10 +797,8 @@ While the SDLC is often taught as a linear “waterfall,” modern teams iterate
 <p>Attempt all questions honestly before opening this memorandum.
 Self-marking without attempting is not self-marking — it is reading.</p>
 </div>
-</section>
 <hr class="docutils" />
-<section id="question-1-recall-2-marks-bt2-understand">
-<h3>Question 1 — Recall (2 marks) <code class="docutils literal notranslate"><span class="pre">[BT2</span> <span class="pre">—</span> <span class="pre">Understand]</span></code><a class="headerlink" href="#question-1-recall-2-marks-bt2-understand" title="Link to this heading"></a></h3>
+<p><strong>1. Question 1 — Recall (2 marks)</strong> <code class="docutils literal notranslate"><span class="pre">[BT2</span> <span class="pre">—</span> <span class="pre">Understand]</span></code></p>
 <p><strong>Correct answer:</strong>
 A bug is code that does not function correctly or produces an error. Technical debt is code that functions perfectly well, but is structured poorly, making future changes expensive, risky, and slow.</p>
 <p><strong>Source:</strong> L01 §2 — “The SDLC and Technical Debt”</p>
@@ -819,17 +817,13 @@ A bug is code that does not function correctly or produces an error. Technical d
 </tr>
 </tbody>
 </table>
-</section>
 <hr class="docutils" />
-<section id="question-2-recall-1-mark-bt1-remember">
-<h3>Question 2 — Recall (1 mark) <code class="docutils literal notranslate"><span class="pre">[BT1</span> <span class="pre">—</span> <span class="pre">Remember]</span></code><a class="headerlink" href="#question-2-recall-1-mark-bt1-remember" title="Link to this heading"></a></h3>
+<p><strong>2. Question 2 — Recall (1 mark)</strong> <code class="docutils literal notranslate"><span class="pre">[BT1</span> <span class="pre">—</span> <span class="pre">Remember]</span></code></p>
 <p><strong>Correct answer:</strong>
 The Design (Architecture) phase.</p>
 <p><strong>Source:</strong> L01 §2 — “The SDLC and Technical Debt”</p>
-</section>
 <hr class="docutils" />
-<section id="question-3-application-reflection-5-marks-bt3-apply">
-<h3>Question 3 — Application / Reflection (5 marks) <code class="docutils literal notranslate"><span class="pre">[BT3</span> <span class="pre">—</span> <span class="pre">Apply]</span></code><a class="headerlink" href="#question-3-application-reflection-5-marks-bt3-apply" title="Link to this heading"></a></h3>
+<p><strong>3. Question 3 — Application / Reflection (5 marks)</strong> <code class="docutils literal notranslate"><span class="pre">[BT3</span> <span class="pre">—</span> <span class="pre">Apply]</span></code></p>
 <p><strong>Rubric:</strong></p>
 <table class="docutils align-default">
 <thead>

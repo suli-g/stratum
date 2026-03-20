@@ -122,7 +122,7 @@ classDiagram
 Here, the `Task` is just data. The storage logic lives in `TaskRepository`, the UI logic in `TaskFormatter`, and the notification logic in `NotificationService`. If the database changes, only `TaskRepository` needs to change — the formatter and notifier are completely insulated from that decision.
 
 :::{tip}
-Architecture is ultimately a communication tool. A well-designed system like the one in [§4.2](#the-system-that-was-designed-separated-concerns) communicates its intent clearly to the next developer who reads it.
+Architecture is ultimately a communication tool. A well-designed system like the one in [§4.2](#42-the-system-that-was-designed-separated-concerns) communicates its intent clearly to the next developer who reads it.
 :::
 
 ## §5
@@ -153,7 +153,7 @@ As we expand the task management system in the coming lessons, we will name spec
 
 ### Application / Reflection
 
-3.  Look at the "God class" diagram in [§4.1](#the-system-that-grew-the-god-class). If the team decides to switch from sending overdue email notifications to sending SMS messages, why does the `Task` class need to be modified? Why is this architecturally problematic? `[BT3 — Apply]`
+3.  Look at the "God class" diagram in [§4.1](#41-the-system-that-grew-the-god-class). If the team decides to switch from sending overdue email notifications to sending SMS messages, why does the `Task` class need to be modified? Why is this architecturally problematic? `[BT3 — Apply]`
 
 <details>
 <summary>📋 Memorandum — check your answers here</summary>
@@ -162,10 +162,9 @@ As we expand the task management system in the coming lessons, we will name spec
 Attempt all questions honestly before opening this memorandum.
 Self-marking without attempting is not self-marking — it is reading.
 :::
-
 ---
 
-### Question 1 — Recall (2 marks) `[BT2 — Understand]`
+**1. Question 1 — Recall (2 marks)** `[BT2 — Understand]`
 
 **Correct answer:**
 A bug is code that does not function correctly or produces an error. Technical debt is code that functions perfectly well, but is structured poorly, making future changes expensive, risky, and slow.
@@ -173,13 +172,13 @@ A bug is code that does not function correctly or produces an error. Technical d
 **Source:** L01 §2 — "The SDLC and Technical Debt"
 
 **Common mistakes:**
-| Mistake | Why it is wrong | Diagnostic note |
-|---|---|---|
+| Mistake                                | Why it is wrong                                                             | Diagnostic note                                                                         |
+| -------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | Equating technical debt to broken code | Technical debt often passes all tests and works perfectly for the end user. | Suggests misunderstanding of structural cost vs functional correctness — revisit L01 §2 |
 
 ---
 
-### Question 2 — Recall (1 mark) `[BT1 — Remember]`
+**2. Question 2 — Recall (1 mark)** `[BT1 — Remember]`
 
 **Correct answer:**
 The Design (Architecture) phase.
@@ -188,14 +187,14 @@ The Design (Architecture) phase.
 
 ---
 
-### Question 3 — Application / Reflection (5 marks) `[BT3 — Apply]`
+**3. Question 3 — Application / Reflection (5 marks)** `[BT3 — Apply]`
 
 **Rubric:**
 
-| Criterion                          | Marks | Full marks                                                                                                                                                                                                                      | Partial marks                                                                                                        | No marks                                            |
-| ---------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
-| Identifies the direct cause        | 2     | Correctly notes that `sendOverdueNotification()` is hardcoded inside the Task class itself, so changing the medium (SMS) requires editing the Task component.                                                                   | Notes the Task class must change, but does not identify the specific method responsible.                             | Fails to identify that the Task class must change.  |
-| Explains the architectural problem | 3     | Explains that this violates separation of concerns (taught in L01 §4.2). Changing communication infrastructure should not require opening the file that defines what a task *is*, risking accidental breakage to unrelated methods like `saveToDatabase`. | Identifies that the class is too large or that the change is messy, but does not name separation of concerns.        | Does not address the architectural implications.    |
+| Criterion                          | Marks | Full marks                                                                                                                                                                                                                                                | Partial marks                                                                                                 | No marks                                           |
+| ---------------------------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| Identifies the direct cause        | 2     | Correctly notes that `sendOverdueNotification()` is hardcoded inside the Task class itself, so changing the medium (SMS) requires editing the Task component.                                                                                             | Notes the Task class must change, but does not identify the specific method responsible.                      | Fails to identify that the Task class must change. |
+| Explains the architectural problem | 3     | Explains that this violates separation of concerns (taught in L01 §4.2). Changing communication infrastructure should not require opening the file that defines what a task *is*, risking accidental breakage to unrelated methods like `saveToDatabase`. | Identifies that the class is too large or that the change is messy, but does not name separation of concerns. | Does not address the architectural implications.   |
 
 **Source:** L01 §4.1 — "The System That Grew (The God Class)"
 **Source:** L01 §4.2 — "The System That Was Designed (Separated Concerns)"
