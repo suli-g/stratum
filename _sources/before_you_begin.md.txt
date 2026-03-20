@@ -199,13 +199,14 @@ it assumes you already know the basics.
 [Git — The Simple Guide](https://rogerdudler.github.io/git-guide/)
 (Free, ~20 minutes)
 
-> [!NOTE]
-> L05 introduces the **Conventional Commits** specification — a structured
-> format for commit messages (`feat(scope): description`). You do not need
-> to know this before starting; it is taught in full in L05. However, if
-> you want to preview it:
-> [Conventional Commits v1.0.0](https://www.conventionalcommits.org/)
-> (Free, ~10 minutes reading)
+:::{note}
+L05 introduces the **Conventional Commits** specification — a structured
+format for commit messages (`feat(scope): description`). You do not need
+to know this before starting; it is taught in full in L05. However, if
+you want to preview it:
+[Conventional Commits v1.0.0](https://www.conventionalcommits.org/)
+(Free, ~10 minutes reading)
+:::
 
 ---
 

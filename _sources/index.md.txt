@@ -4,10 +4,11 @@ Welcome to Stratum — a course that builds a full-stack React + Django
 framework with a CLI code generator from scratch, understanding every
 decision along the way.
 
-> [!IMPORTANT]
-> Before opening Lesson 1, read the [Before You Begin](before_you_begin.md)
-> document. It lists the knowledge this course assumes and links to
-> resources for any gaps.
+:::{important}
+Before opening Lesson 1, read the [Before You Begin](before_you_begin.md)
+document. It lists the knowledge this course assumes and links to
+resources for any gaps.
+:::
 
 ---
 
