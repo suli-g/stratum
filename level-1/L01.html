@@ -16,9 +16,447 @@
       <script src="../_static/documentation_options.js?v=f2a433a1"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Lesson L02 — Architectural Thinking: Context" href="L02.html" />
+    <link rel="prev" title="Level 1 — Foundations" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -70,10 +508,61 @@
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Level 1 — Foundations</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="index.html">Level 1 — Foundations</a><ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Level 1 — Foundations</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="index.html#level-properties">Level Properties</a></li>
-<li class="toctree-l2"><a class="reference internal" href="index.html#course-progression">Course Progression</a><ul class="simple">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#course-progression">Course Progression</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Lesson 1 — What Is System Architecture?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#preamble">Preamble</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outcomes">Outcomes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1">§1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">§2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">§3</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id7">§4</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id10">§5</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formative-assessment">Formative Assessment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#key-terms">Key Terms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#what-s-next">What’s Next</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="L02.html">Lesson L02 — Architectural Thinking: Context</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="L02.html#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="L02.html#what-s-next">What’s Next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="L03.html">Lesson L03 — C4 &amp; UML Primer</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="L03.html#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="L03.html#what-s-next">What’s Next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="L04.html">Lesson L04 — UML Class Diagrams</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="L04.html#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="L04.html#what-s-next">What’s Next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="L05.html">Lesson L05 — Developer Workflow &amp; Git</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="L05.html#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="L05.html#what-s-next">What’s Next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="L06.html">Lesson L06 — Testing Philosophy</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="L06.html#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="L06.html#what-s-next">What’s Next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="L07.html">Lesson L07 — Documentation &amp; ADRs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="L07.html#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="L07.html#what-s-next">What’s Next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="L08.html">Lesson L08 — Consolidation &amp; Self-Check</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="L08.html#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="L08.html#what-s-next">What’s Next</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -118,6 +607,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Level 1 — Foundations</a></li>
       <li class="breadcrumb-item active">Lesson 1 — What Is System Architecture?</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/level-1/L01.md.txt" rel="nofollow"> View page source</a>
@@ -130,14 +620,10 @@
              
   <section id="lesson-1-what-is-system-architecture">
 <h1>Lesson 1 — What Is System Architecture?<a class="headerlink" href="#lesson-1-what-is-system-architecture" title="Link to this heading"></a></h1>
-<section id="level-1-foundations-module-foundations">
-<h2>Level 1 — Foundations | Module — Foundations<a class="headerlink" href="#level-1-foundations-module-foundations" title="Link to this heading"></a></h2>
-</section>
-<hr class="docutils" />
 <section id="preamble">
 <h2>Preamble<a class="headerlink" href="#preamble" title="Link to this heading"></a></h2>
 <p>Think of a codebase you have worked in that was genuinely hard to understand. Every time you added a feature, something seemingly unrelated broke. The code felt brittle, finding where a specific bug lived took hours, and nobody on the team felt confident making large changes. That friction is not a failure of coding ability; it is a failure of system architecture.</p>
-<p>In this course, you are going to build a full-stack framework called Stratum. But before you write a single line of code, you need to understand how to design the system that code will live in. By the end of this lesson, you will be able to distinguish between a system that grew organically and one that was deliberately designed, and you will meet the library system we will use to ground these concepts.</p>
+<p>In this course, you are going to build a full-stack framework called Stratum. But before you write a single line of code, you need to understand how to design the system that code will live in. By the end of this lesson, you will be able to distinguish between a system that grew organically and one that was deliberately designed, and you will meet the task management system we will use to ground these concepts throughout Level 1.</p>
 </section>
 <hr class="docutils" />
 <section id="outcomes">
@@ -147,14 +633,14 @@
 <li><p>Define system architecture and explain why it matters before writing code</p></li>
 <li><p>Identify the software development lifecycle and where architecture sits within it</p></li>
 <li><p>Describe the difference between a system that grew and a system that was designed</p></li>
-<li><p>Recognise the library example system that will be used throughout Level 1</p></li>
+<li><p>Recognise the task management example system that will be used throughout Level 1</p></li>
 </ul>
 </section>
 <hr class="docutils" />
 <section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>None — but read <a class="reference internal" href="#./BEFORE_YOU_BEGIN.md"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">BEFORE_YOU_BEGIN.md</span></code></span></a></p></li>
+<li><p>None — but read <a class="reference internal" href="../before_you_begin.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">before_you_begin.md</span></code></span></a></p></li>
 </ul>
 </section>
 <hr class="docutils" />
@@ -163,7 +649,7 @@
 <section id="what-is-system-architecture">
 <h3>What is System Architecture?<a class="headerlink" href="#what-is-system-architecture" title="Link to this heading"></a></h3>
 <p>When developers talk about building an application, they often jump straight to technology choices: “We are using React for the frontend and Django for the backend.”</p>
-<p>While important, technology choices are not architecture. <strong>System architecture</strong> is the high-level structure of a software system—the components it is made of, the specific responsibilities of each component, and the rules governing how those components interact.<a class="footnote-reference brackets" href="#id10" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> Architecture is about boundaries and communication.</p>
+<p>While important, technology choices are not architecture. <strong>System architecture</strong> is the high-level structure of a software system—the components it is made of, the specific responsibilities of each component, and the rules governing how those components interact.<a class="footnote-reference brackets" href="#id11" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> Architecture is about boundaries and communication.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>System architecture is the set of fundamental design decisions about a software system. If a decision is difficult to change later, it is architectural.</p>
@@ -174,8 +660,8 @@
 <h2>§2<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
 <section id="the-sdlc-and-technical-debt">
 <h3>The SDLC and Technical Debt<a class="headerlink" href="#the-sdlc-and-technical-debt" title="Link to this heading"></a></h3>
-<p>Architecture does not happen in a vacuum. It is a specific phase within the <strong>Software Development Lifecycle (SDLC)</strong>.<a href="#id11"><span class="problematic" id="id4">[^2]</span></a> The SDLC describes the phases a project moves through: Requirements → Design (Architecture) → Implementation (Coding) → Testing → Deployment → Maintenance.</p>
-<p>Skipping the design phase inevitably leads to <strong>technical debt</strong>.<a href="#id12"><span class="problematic" id="id5">[^3]</span></a> Note that technical debt is not the same as a bug. A bug is code that does not work. Technical debt is code that <em>does</em> work, but was written in a way that makes future changes expensive and slow.</p>
+<p>Architecture does not happen in a vacuum. It is a specific phase within the <strong>Software Development Lifecycle (SDLC)</strong>.<a class="footnote-reference brackets" href="#id12" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> The SDLC describes the phases a project moves through: Requirements → Design (Architecture) → Implementation (Coding) → Testing → Deployment → Maintenance.</p>
+<p>Skipping the design phase inevitably leads to <strong>technical debt</strong>.<a class="footnote-reference brackets" href="#id13" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> Note that technical debt is not the same as a bug. A bug is code that does not work. Technical debt is code that <em>does</em> work, but was written in a way that makes future changes expensive and slow.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><strong>The SDLC in practice</strong>
@@ -196,69 +682,67 @@ While the SDLC is often taught as a linear “waterfall,” modern teams iterate
 <li><p>The <strong>bottom section</strong> lists its methods (the actions it can perform).</p></li>
 <li><p><strong>Arrows</strong> between boxes show relationships and dependencies (e.g., Component A calls Component B).</p></li>
 </ul>
-<p>As we progress through Level 1, we will introduce richer C4 and PlantUML diagrams for higher-level system mapping.</p>
+<p>As we progress through Level 1, we will introduce additional diagram types and tools — all notation will be taught before it is used.</p>
 </section>
 </section>
 <section id="id7">
 <h2>§4<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
 <section id="systems-that-grow-vs-systems-that-are-designed">
 <h3>Systems That Grow vs. Systems That Are Designed<a class="headerlink" href="#systems-that-grow-vs-systems-that-are-designed" title="Link to this heading"></a></h3>
-<p>To see the impact of architectural decisions, we will use a simple, familiar example throughout Level 1: a <strong>Public Library Management System</strong>.</p>
-<p>The system needs to manage books, patrons, and the checkout process. Let’s look at what happens when a system is coded directly from requirements without an architectural design phase, versus when it is deliberately structured.</p>
+<p>To see the impact of architectural decisions, we will use a familiar example throughout Level 1: a <strong>Task Management System</strong>.</p>
+<p>You have almost certainly worked in, or written, a system like this. It needs to manage tasks, users, and assignments. Let’s look at what happens when a system is coded directly from requirements without an architectural design phase, versus when it is deliberately structured.</p>
 <section id="the-system-that-grew-the-god-class">
 <h4>§4.1 The System That Grew (The God Class)<a class="headerlink" href="#the-system-that-grew-the-god-class" title="Link to this heading"></a></h4>
-<p>When developers just start typing, they tend to group everything related to a noun into a single place. The result is a “God class”—a single component doing far too much.</p>
-<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>classDiagram
-    class Book {
+<p>When developers just start typing, they tend to group everything related to a noun into a single place. The result is a <strong>God class</strong> — a single component that has absorbed responsibilities far beyond its original purpose.<a class="footnote-reference brackets" href="#id15" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a> At a large enough scale, an entire codebase organised this way is sometimes called a <strong>Big Ball of Mud</strong>: a system with no discernible structure, where everything depends on everything else.</p>
+<pre  class="mermaid">
+        classDiagram
+    class Task {
         +String title
-        +String author
-        +String isbn
+        +String description
+        +String status
         +saveToDatabase()
         +formatForWebDisplay()
-        +sendOverdueEmail()
-        +calculateLateFees()
+        +sendOverdueNotification()
+        +assignToUser()
     }
-</pre></div>
-</div>
-<p>In this system, the <code class="docutils literal notranslate"><span class="pre">Book</span></code> component handles data storage, web presentation, business logic (fees), and external communication (emails). It is highly brittle.</p>
+    </pre><p>In this system, the <code class="docutils literal notranslate"><span class="pre">Task</span></code> component handles data storage, web presentation, user assignment logic, and external communication (notifications). It is highly brittle.</p>
 </section>
 <section id="the-system-that-was-designed-separated-concerns">
 <h4>§4.2 The System That Was Designed (Separated Concerns)<a class="headerlink" href="#the-system-that-was-designed-separated-concerns" title="Link to this heading"></a></h4>
-<p>A designed system applies the principle of <strong>separation of concerns</strong>.<a class="footnote-reference brackets" href="#id10" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> We break the God class apart so that each component has one, clearly defined responsibility.</p>
-<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>classDiagram
-    class Book {
+<p>A designed system applies the principle of <strong>separation of concerns</strong> — the idea that each component should have one clearly defined responsibility, with minimal overlap into the responsibilities of others.<a class="footnote-reference brackets" href="#id14" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> We break the God class apart so that each piece of behaviour finds a home in the component that owns it.</p>
+<pre  class="mermaid">
+        classDiagram
+    class Task {
         +String title
-        +String author
-        +String isbn
+        +String description
+        +String status
     }
-    class BookRepository {
-        +saveToDatabase(Book)
+    class TaskRepository {
+        +saveToDatabase(Task)
     }
-    class BookFormatter {
-        +formatForWebDisplay(Book)
+    class TaskFormatter {
+        +formatForWebDisplay(Task)
     }
     class NotificationService {
-        +sendOverdueEmail(Book)
+        +sendOverdueNotification(Task)
     }
 
-    BookRepository --&gt; Book : stores
-    BookFormatter --&gt; Book : formats
-    NotificationService --&gt; Book : reads
-</pre></div>
-</div>
-<p>Here, the <code class="docutils literal notranslate"><span class="pre">Book</span></code> is just data. The storage logic lives in <code class="docutils literal notranslate"><span class="pre">BookRepository</span></code>, the UI logic in <code class="docutils literal notranslate"><span class="pre">BookFormatter</span></code>, and the email logic in <code class="docutils literal notranslate"><span class="pre">NotificationService</span></code>. If the database changes, the UI logic is untouched.</p>
+    TaskRepository --&gt; Task : stores
+    TaskFormatter --&gt; Task : formats
+    NotificationService --&gt; Task : reads
+    </pre><p>Here, the <code class="docutils literal notranslate"><span class="pre">Task</span></code> is just data. The storage logic lives in <code class="docutils literal notranslate"><span class="pre">TaskRepository</span></code>, the UI logic in <code class="docutils literal notranslate"><span class="pre">TaskFormatter</span></code>, and the notification logic in <code class="docutils literal notranslate"><span class="pre">NotificationService</span></code>. If the database changes, only <code class="docutils literal notranslate"><span class="pre">TaskRepository</span></code> needs to change — the formatter and notifier are completely insulated from that decision.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Architecture is ultimately a communication tool. A well-designed system like the one in <a class="reference external" href="https://www.google.com/search?q=%234.2">§4.2</a> communicates its intent clearly to the next developer who reads it.</p>
+<p>Architecture is ultimately a communication tool. A well-designed system like the one in <a class="reference internal" href="#the-system-that-was-designed-separated-concerns"><span class="xref myst">§4.2</span></a> communicates its intent clearly to the next developer who reads it.</p>
 </div>
 </section>
 </section>
 </section>
-<section id="id9">
-<h2>§5<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
+<section id="id10">
+<h2>§5<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
 <section id="looking-ahead-patterns-and-philosophy">
 <h3>Looking Ahead: Patterns and Philosophy<a class="headerlink" href="#looking-ahead-patterns-and-philosophy" title="Link to this heading"></a></h3>
-<p>As we expand the library system in the coming lessons, we will name specific design patterns (like the <em>Factory pattern</em> or the <em>Observer pattern</em>) as they naturally emerge from our architectural decisions. We will also begin integrating a robust testing philosophy, ensuring that as our system’s architecture solidifies, our confidence in its correctness scales alongside it.</p>
+<p>As we expand the task management system in the coming lessons, we will name specific design patterns (like the <em>Repository pattern</em> or the <em>Observer pattern</em>) as they naturally emerge from our architectural decisions. We will also begin integrating a robust testing philosophy, ensuring that as our system’s architecture solidifies, our confidence in its correctness scales alongside it.</p>
 </section>
 </section>
 <hr class="docutils" />
@@ -304,7 +788,7 @@ While the SDLC is often taught as a linear “waterfall,” modern teams iterate
 <section id="application-reflection">
 <h3>Application / Reflection<a class="headerlink" href="#application-reflection" title="Link to this heading"></a></h3>
 <ol class="arabic simple" start="3">
-<li><p>Look at the “God class” diagram in <a class="reference external" href="https://www.google.com/search?q=%234.1">§4.1</a>. If the library decides to switch from sending overdue emails to sending overdue SMS text messages, why does the <code class="docutils literal notranslate"><span class="pre">Book</span></code> class need to be modified? Why is this architecturally problematic? <code class="docutils literal notranslate"><span class="pre">[BT3</span> <span class="pre">—</span> <span class="pre">Apply]</span></code></p></li>
+<li><p>Look at the “God class” diagram in <a class="reference internal" href="#the-system-that-grew-the-god-class"><span class="xref myst">§4.1</span></a>. If the team decides to switch from sending overdue email notifications to sending SMS messages, why does the <code class="docutils literal notranslate"><span class="pre">Task</span></code> class need to be modified? Why is this architecturally problematic? <code class="docutils literal notranslate"><span class="pre">[BT3</span> <span class="pre">—</span> <span class="pre">Apply]</span></code></p></li>
 </ol>
 <details>
 <summary>📋 Memorandum — check your answers here</summary>
@@ -319,7 +803,7 @@ Self-marking without attempting is not self-marking — it is reading.</p>
 <h3>Question 1 — Recall (2 marks) <code class="docutils literal notranslate"><span class="pre">[BT2</span> <span class="pre">—</span> <span class="pre">Understand]</span></code><a class="headerlink" href="#question-1-recall-2-marks-bt2-understand" title="Link to this heading"></a></h3>
 <p><strong>Correct answer:</strong>
 A bug is code that does not function correctly or produces an error. Technical debt is code that functions perfectly well, but is structured poorly, making future changes expensive, risky, and slow.</p>
-<p><strong>Source:</strong> <a class="reference external" href="https://www.google.com/search?q=%232">L01 §2</a> — “The SDLC and Technical Debt”</p>
+<p><strong>Source:</strong> L01 §2 — “The SDLC and Technical Debt”</p>
 <p><strong>Common mistakes:</strong></p>
 <table class="docutils align-default">
 <thead>
@@ -331,7 +815,7 @@ A bug is code that does not function correctly or produces an error. Technical d
 <tbody>
 <tr class="row-even"><td><p>Equating technical debt to broken code</p></td>
 <td><p>Technical debt often passes all tests and works perfectly for the end user.</p></td>
-<td><p>Suggests misunderstanding of structural cost vs functional correctness — revisit <a class="reference external" href="https://www.google.com/search?q=%232">L01 §2</a></p></td>
+<td><p>Suggests misunderstanding of structural cost vs functional correctness — revisit L01 §2</p></td>
 </tr>
 </tbody>
 </table>
@@ -341,7 +825,7 @@ A bug is code that does not function correctly or produces an error. Technical d
 <h3>Question 2 — Recall (1 mark) <code class="docutils literal notranslate"><span class="pre">[BT1</span> <span class="pre">—</span> <span class="pre">Remember]</span></code><a class="headerlink" href="#question-2-recall-1-mark-bt1-remember" title="Link to this heading"></a></h3>
 <p><strong>Correct answer:</strong>
 The Design (Architecture) phase.</p>
-<p><strong>Source:</strong> <a class="reference external" href="https://www.google.com/search?q=%232">L01 §2</a> — “The SDLC and Technical Debt”</p>
+<p><strong>Source:</strong> L01 §2 — “The SDLC and Technical Debt”</p>
 </section>
 <hr class="docutils" />
 <section id="question-3-application-reflection-5-marks-bt3-apply">
@@ -359,28 +843,28 @@ The Design (Architecture) phase.</p>
 <tbody>
 <tr class="row-even"><td><p>Identifies the direct cause</p></td>
 <td><p>2</p></td>
-<td><p>Correctly notes that <code class="docutils literal notranslate"><span class="pre">sendOverdueEmail()</span></code> is hardcoded inside the Book class itself, so changing the medium (SMS) requires editing the Book component.</p></td>
-<td><p>Notes the Book class must change, but does not identify the specific method responsible.</p></td>
-<td><p>Fails to identify that the Book class must change.</p></td>
+<td><p>Correctly notes that <code class="docutils literal notranslate"><span class="pre">sendOverdueNotification()</span></code> is hardcoded inside the Task class itself, so changing the medium (SMS) requires editing the Task component.</p></td>
+<td><p>Notes the Task class must change, but does not identify the specific method responsible.</p></td>
+<td><p>Fails to identify that the Task class must change.</p></td>
 </tr>
 <tr class="row-odd"><td><p>Explains the architectural problem</p></td>
 <td><p>3</p></td>
-<td><p>Explains that this violates separation of concerns. Changing communication infrastructure (SMS) shouldn’t require opening a core data entity file, risking accidental breakage to unrelated methods (like <code class="docutils literal notranslate"><span class="pre">saveToDatabase</span></code>).</p></td>
-<td><p>Identifies it is messy or bad practice, but misses the core concept of separation of concerns and blast radius.</p></td>
+<td><p>Explains that this violates separation of concerns (taught in L01 §4.2). Changing communication infrastructure should not require opening the file that defines what a task <em>is</em>, risking accidental breakage to unrelated methods like <code class="docutils literal notranslate"><span class="pre">saveToDatabase</span></code>.</p></td>
+<td><p>Identifies that the class is too large or that the change is messy, but does not name separation of concerns.</p></td>
 <td><p>Does not address the architectural implications.</p></td>
 </tr>
 </tbody>
 </table>
-<p><strong>Source:</strong> <a class="reference external" href="https://www.google.com/search?q=%234.1">L01 §4.1</a> — “The System That Grew (The God Class)”<br />
-<strong>Source:</strong> <a class="reference external" href="https://www.google.com/search?q=%234.2">L01 §4.2</a> — “The System That Was Designed (Separated Concerns)”</p>
+<p><strong>Source:</strong> L01 §4.1 — “The System That Grew (The God Class)”
+<strong>Source:</strong> L01 §4.2 — “The System That Was Designed (Separated Concerns)”</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This question assesses quality of reasoning, not correctness of conclusion. A well-argued case for a non-optimal solution scores higher than a correct answer stated without justification.</p>
 </div>
 <p><strong>Anchor examples:</strong></p>
 <ul class="simple">
-<li><p><strong>Strong answer (5/5):</strong> The <code class="docutils literal notranslate"><span class="pre">Book</span></code> class contains the <code class="docutils literal notranslate"><span class="pre">sendOverdueEmail</span></code> method. To change to SMS, we have to edit the <code class="docutils literal notranslate"><span class="pre">Book</span></code> class. This is problematic because it violates separation of concerns; updating how we notify patrons shouldn’t require us to touch the file that defines what a book is. We risk breaking database saving or fee calculation by mistake.</p></li>
-<li><p><strong>Weak answer (2/5):</strong> The Book class has an email method so we have to delete it and make an SMS method. It’s bad because the Book class is too big.</p></li>
+<li><p><strong>Strong answer (5/5):</strong> The <code class="docutils literal notranslate"><span class="pre">Task</span></code> class contains the <code class="docutils literal notranslate"><span class="pre">sendOverdueNotification</span></code> method. To switch to SMS, we have to edit the <code class="docutils literal notranslate"><span class="pre">Task</span></code> class. This is problematic because it violates separation of concerns; updating how we notify users shouldn’t require us to touch the file that defines what a task is. We risk breaking database saving or report generation by mistake.</p></li>
+<li><p><strong>Weak answer (2/5):</strong> The Task class has a notification method so we have to delete it and make an SMS method. It’s bad because the Task class is too big.</p></li>
 </ul>
 <hr class="docutils" />
 <p><strong>Your score: ___ / 8 marks</strong>
@@ -396,15 +880,14 @@ The Design (Architecture) phase.</p>
 <li><p><strong>system architecture</strong>: The high-level structure of a software system — its components, their responsibilities, and how they interact</p></li>
 <li><p><strong>SDLC</strong>: Software Development Lifecycle — the phases a software project moves through from conception to deployment</p></li>
 <li><p><strong>technical debt</strong>: The implied cost of future rework caused by choosing a quick solution now</p></li>
-<li><p><strong>coupling</strong>: The degree to which one component depends on another</p></li>
-<li><p><strong>cohesion</strong>: The degree to which the elements within a component belong together</p></li>
-<li><p><strong>separation of concerns</strong>: The principle that each component should have one clearly defined responsibility</p></li>
+<li><p><strong>God class</strong>: A component that has absorbed too many responsibilities — doing data storage, presentation, business logic, and communication all at once</p></li>
+<li><p><strong>separation of concerns</strong>: The principle that each component should have one clearly defined responsibility, with minimal overlap into the responsibilities of others</p></li>
 </ul>
 </section>
 <hr class="docutils" />
 <section id="what-s-next">
 <h2>What’s Next<a class="headerlink" href="#what-s-next" title="Link to this heading"></a></h2>
-<p>Now that you understand the difference between a system that grew and a system that was designed, we need to formalize how to evaluate those designs. In <a class="reference external" href="https://www.google.com/search?q=./L02.md">Lesson 2</a>, we will dive deeper into “Separation of Concerns” and introduce the metrics of <em>Coupling</em> and <em>Cohesion</em> to measure the health of our architecture.</p>
+<p>Now that you understand the difference between a system that grew and a system that was designed, we need to formalize how to evaluate those designs. In <a class="reference internal" href="L02.html"><span class="std std-doc">Lesson 2</span></a>, we will dive deeper into separation of concerns and introduce two metrics — <strong>Coupling</strong> and <strong>Cohesion</strong> — that let us measure the health of any architecture precisely.</p>
 </section>
 <hr class="docutils" />
 <section id="references">
@@ -413,17 +896,35 @@ The Design (Architecture) phase.</p>
 </section>
 <hr class="footnotes docutils" />
 <aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id10" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id8">2</a>)</span>
+<aside class="footnote brackets" id="id11" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p>Bass, Clements &amp; Kazman. <em>Software Architecture in Practice</em>, 3rd ed. Addison-Wesley, 2012.</p>
+</aside>
+<aside class="footnote brackets" id="id12" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">2</a><span class="fn-bracket">]</span></span>
+<p>Sommerville, Ian. <em>Software Engineering</em>, 10th ed. Pearson, 2015.</p>
+</aside>
+<aside class="footnote brackets" id="id13" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">3</a><span class="fn-bracket">]</span></span>
+<p>Cunningham, Ward. “The WyCash Portfolio Management System.” <em>OOPSLA ‘92</em>, 1992.</p>
+</aside>
+<aside class="footnote brackets" id="id14" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">4</a><span class="fn-bracket">]</span></span>
 <p>Dijkstra, Edsger W. “On the Role of Scientific Thought.” <em>Selected Writings on Computing</em>, 1982.</p>
+</aside>
+<aside class="footnote brackets" id="id15" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">5</a><span class="fn-bracket">]</span></span>
+<p>Foote, Brian and Yoder, Joseph. “Big Ball of Mud.” <em>PLoP ‘97</em>, 1999. http://laputan.org/mud/</p>
 </aside>
 </aside>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Level 1 — Foundations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="L02.html" class="btn btn-neutral float-right" title="Lesson L02 — Architectural Thinking: Context" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
