@@ -78,5 +78,5 @@ stratum-course/
 
 - All lesson files are Markdown (`.md`), processed by MyST parser
 - Diagrams: Mermaid for flow/sequence/ER; PlantUML for C4/component/deployment/use case
-- Callout boxes: `> [!NOTE]`, `> [!WARNING]`, `> [!IMPORTANT]`, `> [!TIP]`, `> [!CAUTION]`
+- Callout boxes: `:::{note}`, `:::{warning}`, `:::{important}`, `:::{tip}`, `:::{caution}`
 - See `BLUEPRINT.md` for full authoring rules and lesson template
